@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Check - Portfolio</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>Portfolio Error Check</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        // Check if all required files exist
+        async function checkFiles() {
+            const files = [
+                'index.html',
+                'assets/css/style.css',
+                'assets/js/script.js',
+                'assets/js/app.js',
+                'skills.json',
+                'projects/projects.json'
+            ];
+
+            for (const file of files) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        addResult(`✅ ${file} - Found`, 'success');
+                    } else {
+                        addResult(`❌ ${file} - Not found (${response.status})`, 'error');
+                    }
+                } catch (error) {
+                    addResult(`❌ ${file} - Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Check JSON files
+        async function checkJSON() {
+            try {
+                const skillsResponse = await fetch('skills.json');
+                const skills = await skillsResponse.json();
+                addResult(`✅ Skills JSON - Valid (${skills.length} skills)`, 'success');
+            } catch (error) {
+                addResult(`❌ Skills JSON - Error: ${error.message}`, 'error');
+            }
+
+            try {
+                const projectsResponse = await fetch('projects/projects.json');
+                const projects = await projectsResponse.json();
+                addResult(`✅ Projects JSON - Valid (${projects.length} projects)`, 'success');
+            } catch (error) {
+                addResult(`❌ Projects JSON - Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Check external libraries
+        function checkLibraries() {
+            if (typeof $ !== 'undefined') {
+                addResult('✅ jQuery - Loaded', 'success');
+            } else {
+                addResult('❌ jQuery - Not loaded', 'error');
+            }
+
+            if (typeof Typed !== 'undefined') {
+                addResult('✅ Typed.js - Loaded', 'success');
+            } else {
+                addResult('❌ Typed.js - Not loaded', 'error');
+            }
+
+            if (typeof ScrollReveal !== 'undefined') {
+                addResult('✅ ScrollReveal - Loaded', 'success');
+            } else {
+                addResult('❌ ScrollReveal - Not loaded', 'error');
+            }
+
+            if (typeof VanillaTilt !== 'undefined') {
+                addResult('✅ VanillaTilt - Loaded', 'success');
+            } else {
+                addResult('❌ VanillaTilt - Not loaded', 'error');
+            }
+        }
+
+        // Run all checks
+        async function runChecks() {
+            addResult('🔍 Starting error check...', 'warning');
+            await checkFiles();
+            await checkJSON();
+            checkLibraries();
+            addResult('✅ Error check complete!', 'success');
+        }
+
+        // Run checks when page loads
+        window.onload = runChecks;
+    </script>
+</body>
+</html> 
